@@ -1,6 +1,3 @@
-import requests
-from bs4 import BeautifulSoup
-from datetime import datetime
 import pandas as pd
 
 # Função para tratar as colunas de diferentes anos

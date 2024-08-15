@@ -2,9 +2,6 @@ import streamlit as st
 import pandas as pd
 from alimentacao_dados import *
 import plotly.graph_objects as go
-from statsmodels.tsa.seasonal import seasonal_decompose
-import matplotlib.pyplot as plt
-from plotly.subplots import make_subplots
 from joblib import load
 import plotly.express as px
 import numpy as np
@@ -53,7 +50,7 @@ st.markdown("""
 page = st.sidebar.selectbox("Escolha a Página", ["Análises", "Deploy do Modelo"])
 
 # Carregar os dados
-df_passos_magicos = pd.read_csv(r'C:/Programas Python/Datathon/Base de dados - Passos Mágicos/PEDE_PASSOS_DATASET_FIAP.csv', sep=';')
+df_passos_magicos = pd.read_csv(r'PEDE_PASSOS_DATASET_FIAP.csv', sep=';')
 year_list = ['2020', '2021', '2022']
 colunas_para_arredondar = ['INDE', 'IAA', 'IEG', 'IPS', 'IDA', 'IPP', 'IPV', 'IAN']
 valores_indesejados = ['#NULO!', 'D9891/2A']
@@ -64,7 +61,7 @@ df_pm_not_nulls = pipeline_passos_magicos(df_passos_magicos, year_list, colunas_
 # Página de Análises
 if page == "Análises":
     ## BLOCO 1 - INTRODUÇÃO
-    st.write('# I. Análise e Previsibilidade de Desempenho - Alunos Passos Mágicos')
+    st.write('# I. Introdução')
     st.markdown('<div class="custom-hr"></div>', unsafe_allow_html=True)
 
     # Texto de contexto
@@ -87,7 +84,7 @@ if page == "Análises":
     """, unsafe_allow_html=True)
 
     ## BLOCO 2 - ANÁLISE DOS DADOS
-    st.write('# II. Conhecendo os dados')
+    st.write('# II. Conhecendo os indicadores')
 
     st.markdown("""
     <p>Para entendimento dos próximos passos, vamos passar rapidamente a definição e como é feita a coleta dos indicadores que compõem a construção da Pedra-Conceito:</p>
@@ -105,7 +102,7 @@ if page == "Análises":
         <li><strong>Pedra-Conceito Quartzo:</strong> 3.302 ≤ INDE ≤ 6.109</li>
         <li><strong>Pedra-Conceito Ágata:</strong> 3.11 ≤ INDE ≤ 7.154</li>
         <li><strong>Pedra-Conceito Ametista:</strong> 7.154 ≤ INDE ≤ 8.198</li>
-        <li><strong>Pedra-Conceito Quartzo:</strong> 8.198 < INDE ≤ 9.442</li>
+        <li><strong>Pedra-Conceito Topázio:</strong> 8.198 < INDE ≤ 9.442</li>
     </ul>
     """, unsafe_allow_html=True)
 
@@ -113,25 +110,46 @@ if page == "Análises":
     Dito isso, vamos analisar a distribuição de alunos em cada Pedra-Conceito por ano
                 """)
 
-    # Criando o gráfico para a distribuição de alunos por classificação de pedras e ano
-    color_map = {
-        '2020': 'orange',
-        '2021': 'blue',
-        '2022': 'purple'
-    }
-    fig = px.bar(df_pm_not_nulls, 
-                 x='PEDRA', 
-                 color='ANO',  # Agrupa as barras por ano
-                 barmode='group',  # Exibe as barras agrupadas (em vez de empilhadas)
-                 title='Distribuição de Alunos por Classificação de Pedras e Ano', 
-                 labels={'PEDRA': 'Pedras', 'count': 'Qtdade Aluno'}, 
-                 category_orders={"PEDRA": df_pm_not_nulls['PEDRA'].value_counts().index},
-                 color_discrete_map=color_map)
+  # Agrupar por 'PEDRA' e 'ANO' e contar o número de 'NOME'
+    df_grouped = df_pm_not_nulls.groupby(['PEDRA', 'ANO']).size().reset_index(name='count')
 
-    # Atualizando o layout do gráfico para melhorar a visualização
+    # Mapear as cores para tons pastéis válidos
+    color_map = {
+        '2020': 'thistle',
+        '2021': 'lightblue',
+        '2022': 'lavender'  # Cor alterada para uma cor válida
+    }
+
+    # Criar o gráfico de barras
+    fig = px.bar(df_grouped, 
+                x='PEDRA', 
+                y='count',  # Usar a contagem de alunos como eixo Y
+                color='ANO',  # Agrupa as barras por ano
+                barmode='group',  # Exibe as barras agrupadas (em vez de empilhadas)
+                title='Distribuição de Alunos por Classificação de Pedras e Ano', 
+                labels={'PEDRA': 'Pedras', 'count': 'Qtdade Aluno'}, 
+                category_orders={"PEDRA": df_grouped['PEDRA'].value_counts().index},
+                color_discrete_map=color_map)
+
+    # Atualizando o layout do gráfico
     fig.update_layout(
         xaxis_title='Pedras',
-        yaxis_title='Qtdade Aluno'
+        yaxis_title='Qtdade Aluno',
+        plot_bgcolor='white',  # Define o fundo do gráfico como branco
+        yaxis=dict(showgrid=False),  # Remove as linhas de grade no eixo Y
+        xaxis=dict(showgrid=False),  # Remove as linhas de grade no eixo X
+        uniformtext_minsize=8,  # Tamanho mínimo do texto uniforme para os rótulos
+        uniformtext_mode='show'  # Mostra todos os textos, mesmo que pequenos
+    )
+
+    # Adicionar rótulos de valor em cima das barras
+    fig.update_traces(
+        texttemplate='%{y:.0f}',  # Formata o valor de Y como inteiro sem casas decimais
+        textposition='outside',  # Garante que os rótulos fiquem fora das barras
+        textfont=dict(
+            size=10,  # Tamanho da fonte dos rótulos
+            color='black'  # Cor dos rótulos como preto
+        )
     )
 
     # Exibir o gráfico no Streamlit
@@ -145,19 +163,38 @@ if page == "Análises":
     df_grouped['Porcentagem'] = df_grouped['Quantidade'] / df_grouped.groupby('ANO')['Quantidade'].transform('sum') * 100
     # Criando o gráfico de linha para mostrar a evolução da quantidade de alunos por pedra ao longo dos anos
     fig = px.line(df_grouped, 
-                  x='ANO', 
-                  y='Porcentagem', 
-                  color='PEDRA',  # Similar ao hue no Seaborn
-                  markers=True,  # Adiciona marcadores aos pontos de dados
-                  title='Porcentagem representativa de Alunos por Tipo de Pedra ao Longo dos Anos',
-                  labels={'ANO': 'Ano', 'Porcentagem': 'Porcentagem de Alunos', 'PEDRA': 'Tipo de Pedra'})
+              x='ANO', 
+              y='Porcentagem', 
+              color='PEDRA',  # Agrupa as linhas por tipo de pedra
+              markers=True,  # Adiciona marcadores aos pontos de dados
+              title='Porcentagem representativa de Alunos por Tipo de Pedra ao Longo dos Anos',
+              labels={'ANO': 'Ano', 'Porcentagem': 'Porcentagem de Alunos', 'PEDRA': 'Tipo de Pedra'})
 
     # Atualizando o layout do gráfico
     fig.update_layout(
         xaxis_title='Ano',
         yaxis_title='Porcentagem de Alunos',
         legend_title_text='Tipo de Pedra',
-        template='plotly'
+        template='plotly',
+        plot_bgcolor='white',  # Define o fundo do gráfico como branco
+        yaxis=dict(showgrid=False),  # Remove as linhas de grade no eixo Y
+        xaxis=dict(showgrid=False),  # Remove as linhas de grade no eixo X
+    )
+
+    # Atualizando as cores para tons pastéis
+    fig.update_traces(line=dict(width=2), 
+                    marker=dict(size=10),
+                    marker_colorscale='Blues')
+
+    # Adicionar rótulos de valor em cima dos marcadores
+    fig.update_traces(
+        texttemplate='%{y:.2f}%',  # Formata o valor de Y como percentual com 2 casas decimais
+        textposition='top center',  # Posição dos rótulos acima dos marcadores
+        textfont=dict(
+            size=10,  # Tamanho da fonte dos rótulos
+            color='black'  # Cor dos rótulos como preto
+        ),
+        mode='markers+text+lines'  # Exibe os marcadores, linhas e rótulos
     )
 
     # Exibir o gráfico no Streamlit
@@ -220,7 +257,7 @@ if page == "Análises":
     <ul style="list-style-type: disc;">
         <li><strong>KNN</strong> - média acurácia: 93.48%, desvio padrão: 1.49% </li>
         <li><strong>Random Forest</strong> - média acurácia: 94.96%, desvio padrão: 2.23%</li>
-        <li><strong>VM</strong> - média acurácia: 90.01%, desvio padrão: 2.16%</li>
+        <li><strong>SVM</strong> - média acurácia: 90.01%, desvio padrão: 2.16%</li>
     </ul>
     """, unsafe_allow_html=True)
     
@@ -349,8 +386,8 @@ elif page == "Deploy do Modelo":
         previsao = modelo.predict(dados)
         return previsao[0]
     
-    ipv_input = st.number_input(label="**:purple[IPV]**",min_value=0.0, max_value=10.0, value=0.0, step=0.1, format="%.1f")
-    ipp_input = st.number_input(label="**:purple[IPP]**",min_value=0.0, max_value=10.0, value=0.0, step=0.1, format="%.1f")
+    ipv_input = st.number_input(label="**:orange[IPV]**",min_value=0.0, max_value=10.0, value=0.0, step=0.1, format="%.1f")
+    ipp_input = st.number_input(label="**:orange[IPP]**",min_value=0.0, max_value=10.0, value=0.0, step=0.1, format="%.1f")
     
 
     # Fazer a previsão
