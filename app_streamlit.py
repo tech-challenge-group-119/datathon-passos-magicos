@@ -245,9 +245,9 @@ if page == "Análises":
                 """)
 
     st.write('#### Resultados de acurácia encontrados:')
-    st.write("###### **- KNN**: 94.22%")
-    st.write("###### **- Random Forest**: 97.33%")
-    st.write("###### **- SVM**: 96%")
+    st.write("###### **- KNN**: 91.11%")
+    st.write("###### **- Random Forest**: 96.22%")
+    st.write("###### **- SVM**: 94.22%")
 
     st.markdown("""
     Como a acurácia dos modelos foi bastante alta, decidimos verificar a possibilidade de overfitting. Para isso, realizamos uma validação cruzada com 5 grupos diferentes dentro do mesmo dataset, medindo a média e o desvio padrão da acurácia""")
@@ -255,14 +255,14 @@ if page == "Análises":
     st.write('#### Fazendo a validação cruzada, temos:')
     st.markdown("""
     <ul style="list-style-type: disc;">
-        <li><strong>KNN</strong> - média acurácia: 93.48%, desvio padrão: 1.49% </li>
-        <li><strong>Random Forest</strong> - média acurácia: 94.96%, desvio padrão: 2.23%</li>
-        <li><strong>SVM</strong> - média acurácia: 90.01%, desvio padrão: 2.16%</li>
+        <li><strong>KNN</strong> - média acurácia: 92.3%, desvio padrão: 1.58% </li>
+        <li><strong>Random Forest</strong> - média acurácia: 94.97%, desvio padrão: 2.15%</li>
+        <li><strong>SVM</strong> - média acurácia: 95.01%, desvio padrão: 2.16%</li>
     </ul>
     """, unsafe_allow_html=True)
     
     st.write("""
-    Como podemos ver, o modelo se comportou bem em todos os grupos de datasets distintos, mostrando que não está em overfiting. A escolha do modelo ideal para esse caso vai se dar pela maior precisão, mesmo significando um desvio padrão um pouco maior. 
+    Como podemos ver, o modelo se comportou bem em todos os grupos de datasets distintos, mostrando que não está em overfiting. A escolha do modelo ideal para esse caso vai se dar pela maior precisão, mesmo significando um desvio padrão ligeiramente maior. 
     Por isso, escolhemos o modelo **SVM**.""")
 
     st.write('## B. Previsão de Indicação de Bolsa')
@@ -302,13 +302,17 @@ if page == "Análises":
     Para evitar as correlações negativas, vamos selecionar como variáveis independentes as duas features com maiores correlações: **IPP e IPV**.
                 """)
     
-    st.write('#### Resultados de acurácia encontrados:')
-    st.write("###### **- KNN**: 83.80%")
-    st.write("###### **- Random Forest**: 80.09%")
-    st.write("###### **- SVM**: 82.41%")
+    st.write('#### Resultados de acurácia e precisão encontrados:')
+    st.markdown("""
+    <ul style="list-style-type: disc;">
+        <li><strong>KNN</strong> - acurácia: 78.03%, precisão: 78.72% </li>
+        <li><strong>Random Forest</strong> - acurácia: 76.87%, precisão: 79.71%</li>
+        <li><strong>SVM</strong> - acurácia: 75.72%, precisão: 85.26%</li>
+    </ul>
+    """, unsafe_allow_html=True)
 
     st.write("""
-    Para esse caso, a melhor escolha foi o **KNN** devido a maior acurácia.
+    Embora o modelo KNN tenha apresentado uma acurácia ligeiramente superior, observamos que o modelo SVM oferece uma precisão maior. Como a diferença na acurácia entre os dois modelos é insignificante, **optaremos pelo modelo SVM**, que proporciona um equilíbrio mais favorável entre precisão e desempenho geral.
                 """)
     
     st.markdown("""
@@ -409,7 +413,7 @@ elif page == "Deploy do Modelo":
     st.markdown('<div class="custom-hr"></div>', unsafe_allow_html=True)
     st.write('### Fazer a previsão do Indicativo de Bolsa')
     # Carregar o modelo treinado
-    modelo = load('modelo_knn.joblib')
+    modelo = load('modelo_svm_b.joblib')
     def fazer_previsao_bolsa(ipp, ipv):
         # Cria um dataframe com as features
         dados = pd.DataFrame({
