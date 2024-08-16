@@ -321,7 +321,7 @@ if page == "Análises":
 # Página de Deploy do Modelo
 elif page == "Deploy do Modelo":
 
-    st.write('### IV. Fazer a previsão do Ponto de Virada')
+    st.write('### Fazer a previsão do Ponto de Virada')
 
     # Carregar o modelo treinado
     modelo = load('modelo_svm_pv.joblib')
@@ -341,28 +341,62 @@ elif page == "Deploy do Modelo":
         previsao = modelo.predict(dados)
         return previsao[0]
     
+    st.markdown("""
+    <style>
+    div[data-testid="stNumberInput"] {
+        display: flex;
+        align-items: flex-start; /* Alinhamento superior */
+    }
+    div[data-testid="stNumberInput"] > div {
+        flex-grow: 1;
+        display: flex;
+        align-items: flex-start;
+    }
+    input[type="number"] {
+        font-size: 18px !important;
+        padding: 10px !important;
+        height: 50px !important;
+        width: calc(100% - 80px) !important; /* Ajusta a largura para incluir os botões */
+        box-sizing: border-box;
+        margin: 0px; /* Remover margens */
+    }
+    div[data-testid="stNumberInput"] button {
+        font-size: 18px !important;
+        padding: 10px !important;
+        height: 50px !important;
+        width: 40px !important;
+        box-sizing: border-box;
+    }
+    div[data-testid="stNumberInput"] button:first-child {
+        margin-right: -4px; /* Colar o botão de decremento ao input */
+    }
+    div[data-testid="stNumberInput"] button:last-child {
+        margin-left: -4px; /* Colar o botão de incremento ao input */
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     col1, col2, col3, col4 = st.columns(4)
     col5, col6, col7, col8 = st.columns(4)
 
     # Organizando as entradas nas colunas com number_input aceitando decimais
     with col1:
-        inde_input = st.number_input(label="**:blue[INDE]**", min_value=0.0, max_value=10.0, value=0.0, step=0.1, format="%.1f")
+        inde_input = st.number_input(label="**:blue[INDE]**", min_value=0.0, max_value=10.0, value=0.0, step=0.1, format="%.1f", label_visibility="visible")
     with col2:
-        ipp_input = st.number_input(label="**:blue[IPP]**", min_value=0.0, max_value=10.0, value=0.0, step=0.1, format="%.1f")
+        ipp_input = st.number_input(label="**:blue[IPP]**", min_value=0.0, max_value=10.0, value=0.0, step=0.1, format="%.1f", label_visibility="visible")
     with col3:
-        iaa_input = st.number_input(label="**:blue[IAA]**", min_value=0.0, max_value=10.0, value=0.0, step=0.1, format="%.1f")
+        iaa_input = st.number_input(label="**:blue[IAA]**", min_value=0.0, max_value=10.0, value=0.0, step=0.1, format="%.1f", label_visibility="visible")
     with col4:
-        ipv_input = st.number_input(label="**:blue[IPV]**", min_value=0.0, max_value=10.0, value=0.0, step=0.1, format="%.1f")
+        ipv_input = st.number_input(label="**:blue[IPV]**", min_value=0.0, max_value=10.0, value=0.0, step=0.1, format="%.1f", label_visibility="visible")
 
     with col5:
-        ieg_input = st.number_input(label="**:blue[IEG]**", min_value=0.0, max_value=10.0, value=0.0, step=0.1, format="%.1f")
+        ieg_input = st.number_input(label="**:blue[IEG]**", min_value=0.0, max_value=10.0, value=0.0, step=0.1, format="%.1f", label_visibility="visible")
     with col6:
-        ian_input = st.number_input(label="**:blue[IAN]**", min_value=0.0, max_value=10.0, value=0.0, step=0.1, format="%.1f")
+        ian_input = st.number_input(label="**:blue[IAN]**", min_value=0.0, max_value=10.0, value=0.0, step=0.1, format="%.1f", label_visibility="visible")
     with col7:
-        ips_input = st.number_input(label="**:blue[IPS]**",min_value=0.0, max_value=10.0, value=0.0, step=0.1, format="%.1f")
+        ips_input = st.number_input(label="**:blue[IPS]**", min_value=0.0, max_value=10.0, value=0.0, step=0.1, format="%.1f", label_visibility="visible")
     with col8:
-        ida_input = st.number_input(label="**:blue[IDA]**",min_value=0.0, max_value=10.0, value=0.0, step=0.1, format="%.1f")
-
+        ida_input = st.number_input(label="**:blue[IDA]**", min_value=0.0, max_value=10.0, value=0.0, step=0.1, format="%.1f", label_visibility="visible")
 
     # Fazer a previsão
     if st.button('Fazer Previsão Ponto de Virada'):
@@ -373,7 +407,7 @@ elif page == "Deploy do Modelo":
             st.success("🎉 O aluno está pronto para o ponto de virada!")
 
     st.markdown('<div class="custom-hr"></div>', unsafe_allow_html=True)
-    st.write('### V. Fazer a previsão do Indicativo de Bolsa')
+    st.write('### Fazer a previsão do Indicativo de Bolsa')
     # Carregar o modelo treinado
     modelo = load('modelo_knn.joblib')
     def fazer_previsao_bolsa(ipp, ipv):
@@ -386,8 +420,12 @@ elif page == "Deploy do Modelo":
         previsao = modelo.predict(dados)
         return previsao[0]
     
-    ipv_input = st.number_input(label="**:orange[IPV]**",min_value=0.0, max_value=10.0, value=0.0, step=0.1, format="%.1f")
-    ipp_input = st.number_input(label="**:orange[IPP]**",min_value=0.0, max_value=10.0, value=0.0, step=0.1, format="%.1f")
+    col1, col2 = st.columns(2)
+
+    with col1:
+        ipv_input = st.number_input(label="**:orange[IPV]**",min_value=0.0, max_value=10.0, value=0.0, step=0.1, format="%.1f")
+    with col2:
+        ipp_input = st.number_input(label="**:orange[IPP]**",min_value=0.0, max_value=10.0, value=0.0, step=0.1, format="%.1f")
     
 
     # Fazer a previsão
